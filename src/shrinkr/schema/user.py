@@ -6,4 +6,5 @@ class UserSchema(BaseModel):
     id: UUID
     username: str
     email: EmailStr
+    password: str
     created_at: datetime
