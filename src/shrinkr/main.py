@@ -1,19 +1,16 @@
 import uvicorn
 
 from fastapi import FastAPI
-from shrinkr.routes import users
+from shrinkr.routes import users, health
 
 app = FastAPI(
     title="Shrinkr API",
     version="1.0.0"
 )
 
-
-@app.get("/")
-def root():
-    return {
-        "status": "ok"
-    }
+app.include_router(
+    health.router
+)
 
 app.include_router(
     users.router,
