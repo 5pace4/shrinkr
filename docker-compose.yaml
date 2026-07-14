@@ -1,0 +1,16 @@
+services:
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - "9043:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=shrinkrCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=Rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+  
+volumes:
+  cassandra_data:
