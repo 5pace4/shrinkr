@@ -12,6 +12,7 @@ dependencies = [
     "cassandra-driver>=3.30.1",
     "fastapi[standard]>=0.139.0",
     "pydantic>=2.13.4",
+    "pydantic-settings>=2.8.1",
 ]
 
 [project.scripts]

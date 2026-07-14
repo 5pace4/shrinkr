@@ -1,8 +1,12 @@
 from cassandra.cluster import Cluster
 
+from shrinkr.config import settings
 
-cluster = Cluster(['localhost'], port=9043)
-session = cluster.connect('shrinkr')
+app_settings = settings()
+
+
+cluster = Cluster([app_settings.cassandra_host], port=app_settings.cassandra_port)
+session = cluster.connect(app_settings.cassandra_keyspace)
 
 session.execute(
 	"""

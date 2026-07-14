@@ -1,6 +1,7 @@
 import uvicorn
 
 from fastapi import FastAPI
+from shrinkr.config import settings
 from shrinkr.routes import users, health
 
 app = FastAPI(
@@ -19,4 +20,11 @@ app.include_router(
 
 
 def dev() -> None:
-    uvicorn.run("shrinkr.main:app", host="127.0.0.1", port=8000, reload=True)
+    app_settings = settings()
+
+    uvicorn.run(
+        "shrinkr.main:app",
+        host=app_settings.app_host,
+        port=app_settings.app_port,
+        reload=True,
+    )
