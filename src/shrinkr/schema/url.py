@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from uuid import UUID
 
 class URLSchema(BaseModel):
-    id: UUID
+    user_id: UUID
     original_url: str
     shortened_url: str
     created_at: datetime

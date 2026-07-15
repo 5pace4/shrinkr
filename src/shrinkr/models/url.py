@@ -6,7 +6,7 @@ class URLCreate(BaseModel):
 
 
 class URLResponse(BaseModel):
-    id: UUID
+    user_id: UUID
     original_url: str
     shortened_url: str
     created_at: str
