@@ -2,7 +2,7 @@ import uvicorn
 
 from fastapi import FastAPI
 from shrinkr.config import settings
-from shrinkr.routes import users, health
+from shrinkr.routes import users, health, urls
 
 app = FastAPI(
     title="Shrinkr API",
@@ -10,7 +10,8 @@ app = FastAPI(
 )
 
 app.include_router(
-    health.router
+    health.router,
+    prefix="/api"
 )
 
 app.include_router(
@@ -18,6 +19,10 @@ app.include_router(
     prefix="/api"
 )
 
+app.include_router(
+    urls.router,
+    prefix="/api"
+)
 
 def dev() -> None:
     app_settings = settings()

@@ -3,6 +3,7 @@ from uuid import UUID
 
 class URLCreate(BaseModel):
     original_url: str
+    user_id: UUID
 
 
 class URLResponse(BaseModel):
