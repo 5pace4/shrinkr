@@ -27,4 +27,4 @@ def make_shortend_url(original_url: str, salt: int = 0) -> str:
     seed_input = original_url if salt == 0 else f"{original_url}:{salt}"
     md5_digest = hashlib.md5(seed_input.encode()).digest()
     short_seed = int.from_bytes(md5_digest[:6], byteorder="big")
-    return base62_encode()short_seed
+    return base62_encode(short_seed)
