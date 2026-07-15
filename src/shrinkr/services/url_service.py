@@ -17,8 +17,14 @@ def base62_encode(number: int) -> str:
     return "".join(reversed(encoded_chars))
 
 
-def make_shortend_url(original_url: str) -> str:
-    """Generate a deterministic short code using MD5 hashing and Base62 encoding."""
-    md5_digest = hashlib.md5(original_url.encode()).digest()
+def make_shortend_url(original_url: str, salt: int = 0) -> str:
+    """Generate a deterministic short code using MD5 hashing and Base62 encoding.
+
+    salt varies the hash input on collision retries, so the same URL still
+    resolves to the same code by default (salt=0) but can be re-derived
+    when that code is already taken by a different URL.
+    """
+    seed_input = original_url if salt == 0 else f"{original_url}:{salt}"
+    md5_digest = hashlib.md5(seed_input.encode()).digest()
     short_seed = int.from_bytes(md5_digest[:6], byteorder="big")
-    return base62_encode(short_seed)
+    return base62_encode()short_seed

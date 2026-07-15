@@ -2,11 +2,26 @@ from shrinkr.db.database import session
 from shrinkr.models.url import URLCreate, URLResponse
 from shrinkr.schema.url import URLSchema
 from datetime import datetime, timedelta
+from shrinkr.repository.get_original_url import get_original_url
 from shrinkr.services.url_service import make_shortend_url
+
+MAX_COLLISION_RETRIES = 5
+
+
+def _resolve_short_code(original_url: str) -> str:
+    """Find a short code for original_url, salting the hash on collision with a different URL."""
+    for salt in range(MAX_COLLISION_RETRIES + 1):
+        candidate = make_shortend_url(original_url, salt)
+        existing = get_original_url(candidate)
+        if existing is None or existing.long_url == original_url:
+            return candidate
+    raise RuntimeError(
+        f"Could not find a free short code for {original_url!r} after {MAX_COLLISION_RETRIES} retries"
+    )
 
 
 def create_short_url(url: URLCreate) -> URLResponse:
-    shortend_url = make_shortend_url(url.original_url)
+    shortend_url = _resolve_short_code(url.original_url)
     created_at = datetime.utcnow()
     new_url = URLSchema(
         user_id=url.user_id,
