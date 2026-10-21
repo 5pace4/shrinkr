@@ -1,12 +1,34 @@
-from cassandra.cluster import Cluster
+import time
+
+from cassandra import DriverException
+from cassandra.cluster import Cluster, NoHostAvailable
 
 from shrinkr.config import settings
 
 app_settings = settings()
 
+MAX_CONNECT_RETRIES = 5
+RETRY_DELAY_SECONDS = 3
 
-cluster = Cluster([app_settings.cassandra_host], port=app_settings.cassandra_port)
-session = cluster.connect()
+
+def _connect_with_retry():
+	"""Retry the initial connection so the app survives starting before Cassandra is ready.
+
+	A failed connect() leaves the Cluster object shut down, so each retry builds
+	a fresh one rather than reusing the one that just failed.
+	"""
+	for attempt in range(1, MAX_CONNECT_RETRIES + 1):
+		cluster = Cluster([app_settings.cassandra_host], port=app_settings.cassandra_port)
+		try:
+			return cluster, cluster.connect()
+		except (NoHostAvailable, DriverException):
+			cluster.shutdown()
+			if attempt == MAX_CONNECT_RETRIES:
+				raise
+			time.sleep(RETRY_DELAY_SECONDS)
+
+
+cluster, session = _connect_with_retry()
 
 session.execute(
 	f"""

@@ -11,6 +11,30 @@ services:
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
     volumes:
       - cassandra_data:/var/lib/cassandra
-  
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep -E '^UN\\s' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shrinkr-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Override the host-facing values from .env with the in-network ones:
+      # other containers reach Cassandra by service name, on its container port.
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
+    depends_on:
+      cassandra:
+        condition: service_healthy
+
 volumes:
   cassandra_data:
