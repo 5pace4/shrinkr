@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from shrinkr.db.database import session
 from shrinkr.models.url import URLCreate, URLResponse
 from shrinkr.schema.url import URLSchema
@@ -20,12 +22,25 @@ def _resolve_short_code(original_url: str) -> str:
     )
 
 
-def create_short_url(url: URLCreate) -> URLResponse:
-    shortend_url = _resolve_short_code(url.original_url)
+def _resolve_custom_alias(alias: str, original_url: str) -> str:
+    """Validate that a custom alias is free, or already points at this same URL."""
+    existing = get_original_url(alias)
+    if existing is not None and existing.long_url != original_url:
+        raise ValueError(f"Alias '{alias}' is already taken")
+    return alias
+
+
+def create_short_url(url: URLCreate, user_id: UUID) -> URLResponse:
+    original_url = str(url.original_url)
+    shortend_url = (
+        _resolve_custom_alias(url.custom_alias, original_url)
+        if url.custom_alias
+        else _resolve_short_code(original_url)
+    )
     created_at = datetime.utcnow()
     new_url = URLSchema(
-        user_id=url.user_id,
-        original_url=url.original_url,
+        user_id=user_id,
+        original_url=original_url,
         shortened_url=shortend_url,
         created_at= created_at,
         expiration_date=created_at + timedelta(days=30),

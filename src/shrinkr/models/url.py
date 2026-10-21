@@ -1,9 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, HttpUrl
 from uuid import UUID
 
 class URLCreate(BaseModel):
-    original_url: str
-    user_id: UUID
+    original_url: HttpUrl
+    custom_alias: str | None = Field(
+        default=None, pattern=r"^[A-Za-z0-9_-]{3,32}$"
+    )
 
 
 class URLResponse(BaseModel):

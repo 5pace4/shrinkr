@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     cassandra_keyspace: str = "shrinkr"
     app_host: str = "127.0.0.1"
     app_port: int = 8000
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60
+    cors_origins: str = "*"
 
 
 @lru_cache
